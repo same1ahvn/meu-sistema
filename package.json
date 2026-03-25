@@ -1,5 +1,8 @@
 {
   "name": "meu-sistema",
   "version": "1.0.0",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "pg": "^8.11.0"
+  }
 }
