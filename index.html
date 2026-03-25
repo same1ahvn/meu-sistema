@@ -59,8 +59,23 @@
 </div>
 
 <div id="painel">
-  <h1>Bem-vindo ao sistema</h1>
+  <h1>Bem-vindo</h1>
   <p id="infoUsuario"></p>
+
+  <h2>Criar Usuário</h2>
+  <input type="text" id="nome" placeholder="Nome">
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="senha" placeholder="Senha">
+  
+  <select id="role">
+    <option value="funcionario">Funcionário</option>
+    <option value="adm">Admin</option>
+  </select>
+
+  <button onclick="criarUsuario()">Criar</button>
+
+  <h2>Lista de Usuários</h2>
+  <ul id="listaUsuarios"></ul>
 </div>
 
 <script src="script.js"></script>
