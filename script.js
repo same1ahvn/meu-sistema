@@ -118,3 +118,18 @@ async function carregarSolicitacoes() {
     ul.appendChild(li);
   });
 }
+// =============================
+// NAVEGAÇÃO ENTRE TELAS
+// =============================
+function mostrarTela(tela) {
+  document.querySelectorAll(".tela").forEach(t => t.style.display = "none");
+  document.getElementById(tela).style.display = "block";
+  document.getElementById("titulo").innerText = tela;
+}
+
+// =============================
+// LOGOUT
+// =============================
+function logout() {
+  location.reload();
+}
