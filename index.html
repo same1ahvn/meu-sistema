@@ -9,10 +9,7 @@
       font-family: Arial;
       background: #0f172a;
       color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      margin: 0;
     }
 
     .login-box {
@@ -20,10 +17,11 @@
       padding: 30px;
       border-radius: 10px;
       width: 300px;
+      margin: 100px auto;
       text-align: center;
     }
 
-    input {
+    input, select, textarea {
       width: 100%;
       padding: 10px;
       margin: 10px 0;
@@ -43,13 +41,24 @@
 
     #painel {
       display: none;
-      text-align: center;
+      padding: 20px;
+    }
+
+    .box {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
     }
   </style>
 </head>
 
 <body>
 
+<!-- LOGIN -->
 <div id="loginScreen" class="login-box">
   <h2>Login SAME</h2>
   <input type="text" id="loginUser" placeholder="Usuário">
@@ -58,21 +67,30 @@
   <p id="loginErro" style="color:red;"></p>
 </div>
 
-<h2>Nova Solicitação</h2>
+<!-- PAINEL -->
+<div id="painel">
 
-<select id="tipo">
-  <option value="falta">Falta</option>
-  <option value="atraso">Atraso</option>
-  <option value="ferias">Férias</option>
-</select>
+  <div class="box">
+    <h2>Nova Solicitação</h2>
 
-<input type="date" id="data">
-<textarea id="motivo" placeholder="Motivo"></textarea>
+    <select id="tipo">
+      <option value="falta">Falta</option>
+      <option value="atraso">Atraso</option>
+      <option value="ferias">Férias</option>
+    </select>
 
-<button onclick="criarSolicitacao()">Enviar</button>
+    <input type="date" id="data">
+    <textarea id="motivo" placeholder="Motivo"></textarea>
 
-<h2>Solicitações</h2>
-<ul id="listaSolicitacoes"></ul>
+    <button onclick="criarSolicitacao()">Enviar</button>
+  </div>
+
+  <div class="box">
+    <h2>Solicitações</h2>
+    <ul id="listaSolicitacoes"></ul>
+  </div>
+
+</div>
 
 <script src="script.js"></script>
 
