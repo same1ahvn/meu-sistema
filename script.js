@@ -31,6 +31,13 @@ async function login() {
 
       carregarUsuarios();
       carregarSolicitacoes();
+      carregarCalendario();
+      setInterval(() => {
+  if (usuarioLogado) {
+    carregarSolicitacoes();
+    carregarCalendario();
+  }
+}, 5000);
 
     } else {
       document.getElementById("loginErro").innerText = data.erro;
@@ -132,4 +139,49 @@ function mostrarTela(tela) {
 // =============================
 function logout() {
   location.reload();
+}
+// =============================
+// CALENDÁRIO
+// =============================
+let calendar;
+
+async function carregarCalendario() {
+  const res = await fetch("/api/solicitacoes");
+  const dados = await res.json();
+
+  const eventos = dados.map(s => ({
+    title: `${s.nome} - ${s.tipo}`,
+    date: s.data,
+    color: corTipo(s.tipo)
+  }));
+
+  const el = document.getElementById("calendar");
+
+  if (!el) return;
+
+  if (!calendar) {
+    calendar = new FullCalendar.Calendar(el, {
+      initialView: 'dayGridMonth',
+      locale: 'pt-br',
+      events: eventos,
+      eventClick: function(info) {
+        alert(info.event.title);
+      }
+    });
+
+    calendar.render();
+  } else {
+    calendar.removeAllEvents();
+    calendar.addEventSource(eventos);
+  }
+}
+
+// =============================
+// CORES POR TIPO
+// =============================
+function corTipo(tipo) {
+  if (tipo === "falta") return "red";
+  if (tipo === "atraso") return "orange";
+  if (tipo === "ferias") return "green";
+  return "blue";
 }
