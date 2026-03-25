@@ -168,11 +168,21 @@ li:hover {
 </div>
     </div>
     <!-- SOLICITAÇÕES -->
-   <div id="solicitacoes" class="tela" style="display:none;">
+<div id="solicitacoes" class="tela" style="display:none;">
 
   <div class="card">
     <h2>Nova Solicitação</h2>
-    ...
+
+    <select id="tipo">
+      <option value="falta">Falta</option>
+      <option value="atraso">Atraso</option>
+      <option value="ferias">Férias</option>
+    </select>
+
+    <input type="date" id="data">
+    <textarea id="motivo" placeholder="Motivo"></textarea>
+
+    <button onclick="criarSolicitacao()">Enviar</button>
   </div>
 
   <div class="card">
@@ -181,14 +191,6 @@ li:hover {
   </div>
 
 </div>
-      <div class="card">
-        <h2>Solicitações</h2>
-        <ul id="listaSolicitacoes"></ul>
-      </div>
-
-    </div>
-
-  </div>
 </div>
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
