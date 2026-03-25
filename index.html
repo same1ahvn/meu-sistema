@@ -58,25 +58,21 @@
   <p id="loginErro" style="color:red;"></p>
 </div>
 
-<div id="painel">
-  <h1>Bem-vindo</h1>
-  <p id="infoUsuario"></p>
+<h2>Nova Solicitação</h2>
 
-  <h2>Criar Usuário</h2>
-  <input type="text" id="nome" placeholder="Nome">
-  <input type="text" id="username" placeholder="Username">
-  <input type="password" id="senha" placeholder="Senha">
-  
-  <select id="role">
-    <option value="funcionario">Funcionário</option>
-    <option value="adm">Admin</option>
-  </select>
+<select id="tipo">
+  <option value="falta">Falta</option>
+  <option value="atraso">Atraso</option>
+  <option value="ferias">Férias</option>
+</select>
 
-  <button onclick="criarUsuario()">Criar</button>
+<input type="date" id="data">
+<textarea id="motivo" placeholder="Motivo"></textarea>
 
-  <h2>Lista de Usuários</h2>
-  <ul id="listaUsuarios"></ul>
-</div>
+<button onclick="criarSolicitacao()">Enviar</button>
+
+<h2>Solicitações</h2>
+<ul id="listaSolicitacoes"></ul>
 
 <script src="script.js"></script>
 
