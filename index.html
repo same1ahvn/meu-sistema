@@ -1,59 +1,101 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>SAME - Sistema</title>
+<meta charset="UTF-8">
+<title>SAME - Sistema</title>
 
-  <style>
-    body {
-      font-family: Arial;
-      background: #0f172a;
-      color: white;
-      margin: 0;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+}
 
-    .login-box {
-      background: #1e293b;
-      padding: 30px;
-      border-radius: 10px;
-      width: 300px;
-      margin: 100px auto;
-      text-align: center;
-    }
+/* LOGIN */
+.login-box {
+  background: #1e293b;
+  padding: 30px;
+  border-radius: 10px;
+  width: 300px;
+  margin: 100px auto;
+  text-align: center;
+}
 
-    input, select, textarea {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-      border: none;
-    }
+/* INPUTS */
+input, select, textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 6px;
+  border: none;
+}
 
-    button {
-      width: 100%;
-      padding: 10px;
-      background: #22c55e;
-      border: none;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
+/* BOTÃO */
+button {
+  padding: 10px;
+  background: #22c55e;
+  border: none;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 6px;
+}
 
-    #painel {
-      display: none;
-      padding: 20px;
-    }
+/* PAINEL */
+#painel {
+  display: none;
+  height: 100vh;
+}
 
-    .box {
-      background: #1e293b;
-      padding: 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-  </style>
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  background: #020617;
+  height: 100vh;
+  padding: 20px;
+  position: fixed;
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
+}
+
+.sidebar button {
+  width: 100%;
+  margin-bottom: 10px;
+  background: #1e293b;
+}
+
+/* CONTEÚDO */
+.content {
+  margin-left: 240px;
+  padding: 20px;
+}
+
+/* TOPO */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+/* CARDS */
+.card {
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+/* LISTA */
+li {
+  background: #020617;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 6px;
+}
+</style>
 </head>
 
 <body>
@@ -70,26 +112,56 @@
 <!-- PAINEL -->
 <div id="painel">
 
-  <div class="box">
-    <h2>Nova Solicitação</h2>
-
-    <select id="tipo">
-      <option value="falta">Falta</option>
-      <option value="atraso">Atraso</option>
-      <option value="ferias">Férias</option>
-    </select>
-
-    <input type="date" id="data">
-    <textarea id="motivo" placeholder="Motivo"></textarea>
-
-    <button onclick="criarSolicitacao()">Enviar</button>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h2>SAME</h2>
+    <button onclick="mostrarTela('dashboard')">🏠 Dashboard</button>
+    <button onclick="mostrarTela('solicitacoes')">📋 Solicitações</button>
+    <button onclick="logout()">🚪 Sair</button>
   </div>
 
-  <div class="box">
-    <h2>Solicitações</h2>
-    <ul id="listaSolicitacoes"></ul>
-  </div>
+  <!-- CONTEÚDO -->
+  <div class="content">
 
+    <div class="topbar">
+      <h1 id="titulo">Dashboard</h1>
+      <span id="infoUsuario"></span>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="tela">
+      <div class="card">
+        <h2>Bem-vindo ao sistema 👋</h2>
+        <p>Use o menu lateral para navegar</p>
+      </div>
+    </div>
+
+    <!-- SOLICITAÇÕES -->
+    <div id="solicitacoes" class="tela" style="display:none;">
+
+      <div class="card">
+        <h2>Nova Solicitação</h2>
+
+        <select id="tipo">
+          <option value="falta">Falta</option>
+          <option value="atraso">Atraso</option>
+          <option value="ferias">Férias</option>
+        </select>
+
+        <input type="date" id="data">
+        <textarea id="motivo" placeholder="Motivo"></textarea>
+
+        <button onclick="criarSolicitacao()">Enviar</button>
+      </div>
+
+      <div class="card">
+        <h2>Solicitações</h2>
+        <ul id="listaSolicitacoes"></ul>
+      </div>
+
+    </div>
+
+  </div>
 </div>
 
 <script src="script.js"></script>
