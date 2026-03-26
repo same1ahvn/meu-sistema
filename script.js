@@ -138,8 +138,11 @@ async function carregarSolicitacoes() {
 }
 
 // =============================
-// CALENDÁRIO
+// CALENDÁRIO INTERATIVO
 // =============================
+let calendar;
+let dayDetailsEl;
+
 async function carregarCalendario() {
   const res = await fetch("/api/solicitacoes");
   const dados = await res.json();
@@ -159,24 +162,27 @@ async function carregarCalendario() {
       initialView: 'dayGridMonth',
       locale: 'pt-br',
       events: eventos,
-      dayCellDidMount: arg => arg.el.style.cursor = "pointer",
+      dayCellDidMount: arg => {
+        arg.el.style.cursor = "pointer"; // muda cursor para indicar clicável
+      },
       dateClick: info => mostrarDetalhesDia(info.dateStr, dados)
     });
     calendar.render();
 
-    // Container minimalista para detalhes do dia
+    // Cria o container flutuante para detalhes do dia
     dayDetailsEl = document.createElement("div");
     dayDetailsEl.id = "detalhesDia";
     dayDetailsEl.style.position = "absolute";
     dayDetailsEl.style.background = "#1e293b";
     dayDetailsEl.style.padding = "15px";
     dayDetailsEl.style.borderRadius = "10px";
-    dayDetailsEl.style.top = "50px";
+    dayDetailsEl.style.top = "80px"; // distância do topo
     dayDetailsEl.style.left = "50%";
     dayDetailsEl.style.transform = "translateX(-50%)";
     dayDetailsEl.style.display = "none";
     dayDetailsEl.style.maxWidth = "400px";
-    dayDetailsEl.style.boxShadow = "0 0 15px rgba(0,0,0,0.4)";
+    dayDetailsEl.style.boxShadow = "0 0 15px rgba(0,0,0,0.5)";
+    dayDetailsEl.style.zIndex = "1000"; // garante que fique acima do calendário
     document.body.appendChild(dayDetailsEl);
   } else {
     calendar.removeAllEvents();
@@ -184,9 +190,11 @@ async function carregarCalendario() {
   }
 }
 
-// Mostrar/ocultar detalhes do dia
+// Função que abre/fecha os detalhes do dia
 function mostrarDetalhesDia(data, dados) {
   const detalhes = dados.filter(s => s.data === data);
+
+  // Se não houver eventos ou se clicar novamente na mesma data, fecha
   if (detalhes.length === 0 || dayDetailsEl.dataset.aberto === data) {
     dayDetailsEl.style.display = "none";
     dayDetailsEl.dataset.aberto = "";
@@ -194,13 +202,17 @@ function mostrarDetalhesDia(data, dados) {
   }
 
   dayDetailsEl.dataset.aberto = data;
+
+  // Conteúdo minimalista do popup
   dayDetailsEl.innerHTML = `<h3>${detalhes.length} Solicitação(s) - ${data}</h3>` +
-    detalhes.map(s => `<div style="padding:5px 0; border-bottom:1px solid #0f172a;">
-      <strong>${s.nome}</strong> - ${s.tipo} (${s.status})
-    </div>`).join('');
+    detalhes.map(s => `
+      <div style="padding:5px 0; border-bottom:1px solid #0f172a;">
+        <strong>${s.nome}</strong> - ${s.tipo} (${s.status})
+      </div>
+    `).join('');
+
   dayDetailsEl.style.display = "block";
 }
-
 // =============================
 // ANIVERSARIANTES
 // =============================
