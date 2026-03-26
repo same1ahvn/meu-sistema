@@ -47,7 +47,27 @@ async function login() {
     document.getElementById("loginErro").innerText = "Erro ao conectar";
   }
 }
+async function carregarAniversariantes() {
+  const res = await fetch("/api/usuarios");
+  const usuarios = await res.json();
 
+  const mesAtual = new Date().getMonth() + 1; // 1 a 12
+  const lista = document.getElementById("listaAniversariantes");
+  lista.innerHTML = "";
+
+  const fragment = document.createDocumentFragment();
+
+  usuarios.forEach(u => {
+    const data = new Date(u.data_nascimento); // certifique-se que backend retorna
+    if (data.getMonth() + 1 === mesAtual) {
+      const li = document.createElement("li");
+      li.textContent = `${u.nome} - ${data.getDate()}/${data.getMonth()+1}`;
+      fragment.appendChild(li);
+    }
+  });
+
+  lista.appendChild(fragment);
+}
 
 // =============================
 // USUÁRIOS
@@ -144,6 +164,7 @@ function logout() {
 // CALENDÁRIO
 // =============================
 let calendar;
+let dayDetailsEl;
 
 async function carregarCalendario() {
   const res = await fetch("/api/solicitacoes");
@@ -152,6 +173,11 @@ async function carregarCalendario() {
   const eventos = dados.map(s => ({
     title: `${s.nome} - ${s.tipo}`,
     date: s.data,
+    extendedProps: {
+      status: s.status,
+      motivo: s.motivo,
+      usuario: s.nome
+    },
     color: corTipo(s.tipo)
   }));
 
@@ -164,18 +190,64 @@ async function carregarCalendario() {
       initialView: 'dayGridMonth',
       locale: 'pt-br',
       events: eventos,
-      eventClick: function(info) {
-        alert(info.event.title);
+      dayCellDidMount: function(arg) {
+        arg.el.style.cursor = "pointer";
+      },
+      dateClick: function(info) {
+        mostrarDetalhesDia(info.dateStr, dados);
       }
     });
 
     calendar.render();
+
+    // Cria container para detalhes do dia
+    dayDetailsEl = document.createElement("div");
+    dayDetailsEl.id = "detalhesDia";
+    dayDetailsEl.style.position = "absolute";
+    dayDetailsEl.style.background = "#1e293b";
+    dayDetailsEl.style.padding = "15px";
+    dayDetailsEl.style.borderRadius = "10px";
+    dayDetailsEl.style.top = "50px";
+    dayDetailsEl.style.left = "50%";
+    dayDetailsEl.style.transform = "translateX(-50%)";
+    dayDetailsEl.style.display = "none";
+    dayDetailsEl.style.maxWidth = "400px";
+    dayDetailsEl.style.boxShadow = "0 0 15px rgba(0,0,0,0.4)";
+    document.body.appendChild(dayDetailsEl);
   } else {
     calendar.removeAllEvents();
     calendar.addEventSource(eventos);
   }
 }
 
+// Mostrar/ocultar detalhes do dia
+function mostrarDetalhesDia(data, dados) {
+  const detalhes = dados.filter(s => s.data === data);
+
+  if (detalhes.length === 0) {
+    dayDetailsEl.style.display = "none";
+    return;
+  }
+
+  // Toggle: fecha se já está aberto no mesmo dia
+  if (dayDetailsEl.dataset.aberto === data) {
+    dayDetailsEl.style.display = "none";
+    dayDetailsEl.dataset.aberto = "";
+    return;
+  }
+
+  dayDetailsEl.dataset.aberto = data;
+
+  // Conteúdo minimalista
+  dayDetailsEl.innerHTML = `<h3>${detalhes.length} Solicitação(s) - ${data}</h3>` +
+    detalhes.map(s => `
+      <div style="padding:5px 0; border-bottom:1px solid #0f172a;">
+        <strong>${s.nome}</strong> - ${s.tipo} (${s.status})
+      </div>
+    `).join('');
+
+  dayDetailsEl.style.display = "block";
+}
 // =============================
 // CORES POR TIPO
 // =============================
