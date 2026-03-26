@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>SAME - Sistema</title>
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
 
 <style>
+/* ===== GERAL ===== */
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
@@ -12,28 +14,6 @@ body {
   color: white;
 }
 
-/* LOGIN */
-.login-box {
-  background: #1e293b;
-  padding: 30px;
-  border-radius: 12px;
-  width: 320px;
-  margin: 120px auto;
-  text-align: center;
-  box-shadow: 0 0 20px rgba(0,0,0,0.4);
-}
-
-/* INPUTS */
-input, select, textarea {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 8px;
-  border: none;
-  outline: none;
-}
-
-/* BOTÃO */
 button {
   padding: 12px;
   background: #22c55e;
@@ -42,47 +22,56 @@ button {
   font-weight: bold;
   cursor: pointer;
   border-radius: 8px;
-  transition: 0.2s;
+  transition: 0.3s;
+}
+button:hover { background: #16a34a; }
+
+/* ===== LOGIN ===== */
+.login-box {
+  background: #1e293b;
+  padding: 30px;
+  border-radius: 12px;
+  width: 360px;
+  margin: 120px auto;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.login-box input, .login-box select {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: none;
+  outline: none;
 }
 
-button:hover {
-  background: #16a34a;
-}
+/* ===== PAINEL ===== */
+#painel { display: none; height: 100vh; }
 
-/* PAINEL */
-#painel {
-  display: none;
-  height: 100vh;
-}
-
-/* SIDEBAR */
+/* ===== SIDEBAR ===== */
 .sidebar {
   width: 240px;
   background: #020617;
   height: 100vh;
   padding: 20px;
   position: fixed;
-  box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+  box-shadow: 3px 0 20px rgba(0,0,0,0.6);
 }
-
-.sidebar h2 {
-  margin-bottom: 30px;
-}
-
+.sidebar h2 { margin-bottom: 30px; }
 .sidebar button {
   width: 100%;
   margin-bottom: 12px;
   background: #1e293b;
   text-align: left;
+  padding-left: 15px;
 }
+.sidebar button:hover { background: #111827; }
 
-/* CONTEÚDO */
+/* ===== CONTEÚDO ===== */
 .content {
   margin-left: 260px;
   padding: 30px;
 }
-
-/* TOPO */
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -90,16 +79,18 @@ button:hover {
   margin-bottom: 25px;
 }
 
-/* CARDS */
+/* ===== CARDS ===== */
 .card {
   background: #1e293b;
-  padding: 20px;
-  border-radius: 12px;
+  padding: 25px;
+  border-radius: 15px;
   margin-bottom: 20px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  transition: 0.3s;
 }
+.card:hover { transform: translateY(-3px); }
 
-/* LISTA */
+/* ===== LISTAS ===== */
 li {
   background: #020617;
   padding: 12px;
@@ -107,22 +98,35 @@ li {
   border-radius: 8px;
   transition: 0.2s;
 }
+li:hover { background: #111827; cursor: pointer; }
 
-li:hover {
-  background: #0f172a;
-}
-
-/* CALENDÁRIO */
+/* ===== CALENDÁRIO ===== */
 #calendar {
   background: white;
   color: black;
   padding: 10px;
-  border-radius: 10px;
+  border-radius: 12px;
+  cursor: pointer;
 }
+.fc { border-radius: 12px; }
 
-.fc {
-  border-radius: 10px;
+/* ===== POPUP DETALHES ===== */
+#detalhesDia {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 450px;
+  background: #1e293b;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  display: none;
+  z-index: 1000;
+  transition: all 0.3s ease;
 }
+#detalhesDia h3 { margin-top: 0; }
+#detalhesDia div { margin-bottom: 8px; border-bottom: 1px solid #0f172a; padding-bottom: 5px; }
 </style>
 </head>
 
@@ -212,7 +216,8 @@ li:hover {
   </div>
 </div>
 
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+<div id="detalhesDia"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 <script src="script.js"></script>
 
