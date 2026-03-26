@@ -126,14 +126,7 @@ li:hover {
 
 /* DETALHES DO DIA */
 #detalhesDia {
-  display: none;
-  background: #1e293b;
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 15px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
-  max-height: 300px;
-  overflow-y: auto;
+  font-size: 14px;
 }
 </style>
 </head>
@@ -156,6 +149,7 @@ li:hover {
   <div class="sidebar">
     <h2>SAME</h2>
     <button onclick="mostrarTela('dashboard')">🏠 Dashboard</button>
+    <button onclick="mostrarTela('usuarios')">👥 Usuários</button>
     <button onclick="mostrarTela('solicitacoes')">📋 Solicitações</button>
     <button onclick="logout()">🚪 Sair</button>
   </div>
@@ -170,49 +164,56 @@ li:hover {
 
     <!-- DASHBOARD -->
     <div id="dashboard" class="tela">
-
-      <!-- ANIVERSARIANTES -->
       <div class="card" id="aniversariantes">
         <h2>🎂 Aniversariantes do mês</h2>
         <ul id="listaAniversariantes"></ul>
       </div>
-
-      <!-- CALENDÁRIO -->
       <div class="card">
         <h2>📅 Calendário</h2>
         <div id="calendar"></div>
-        <div id="detalhesDia"></div>
       </div>
+    </div>
 
+    <!-- USUÁRIOS -->
+    <div id="usuarios" class="tela" style="display:none;">
+      <div class="card">
+        <h2>Criar Novo Usuário</h2>
+        <input type="text" id="nome" placeholder="Nome">
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="senha" placeholder="Senha">
+        <select id="role">
+          <option value="admin">Admin</option>
+          <option value="user">User</option>
+        </select>
+        <input type="date" id="nascimento" placeholder="Data de nascimento">
+        <button onclick="criarUsuario()">Criar Usuário</button>
+      </div>
+      <div class="card">
+        <h2>Lista de Usuários</h2>
+        <ul id="listaUsuarios"></ul>
+      </div>
     </div>
 
     <!-- SOLICITAÇÕES -->
     <div id="solicitacoes" class="tela" style="display:none;">
-
       <div class="card">
         <h2>Nova Solicitação</h2>
-
         <select id="tipo">
           <option value="falta">Falta</option>
           <option value="atraso">Atraso</option>
           <option value="ferias">Férias</option>
         </select>
-
         <input type="date" id="data">
         <textarea id="motivo" placeholder="Motivo"></textarea>
-
         <button onclick="criarSolicitacao()">Enviar</button>
       </div>
-
       <div class="card">
         <h2>Solicitações</h2>
         <ul id="listaSolicitacoes"></ul>
       </div>
-
     </div>
 
   </div>
-
 </div>
 
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
