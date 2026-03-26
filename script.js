@@ -3,7 +3,6 @@
 // =============================
 let usuarioLogado = null;
 let calendar;
-let dayDetailsEl;
 
 // =============================
 // LOGIN
@@ -15,9 +14,7 @@ async function login() {
   try {
     const res = await fetch("/api/login", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, senha })
     });
 
@@ -25,7 +22,6 @@ async function login() {
 
     if (res.ok) {
       usuarioLogado = data.usuario;
-
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("painel").style.display = "block";
       document.getElementById("infoUsuario").innerText = data.usuario.nome;
@@ -39,7 +35,6 @@ async function login() {
         if (usuarioLogado) {
           carregarSolicitacoes();
           carregarCalendario();
-          carregarAniversariantes();
         }
       }, 5000);
 
@@ -58,12 +53,9 @@ async function login() {
 async function carregarUsuarios() {
   const res = await fetch("/api/usuarios");
   const usuarios = await res.json();
-
   const lista = document.getElementById("listaUsuarios");
   if (!lista) return;
-
   lista.innerHTML = "";
-
   usuarios.forEach(u => {
     const li = document.createElement("li");
     li.innerText = `${u.nome} (${u.username}) - ${u.role}`;
@@ -79,9 +71,7 @@ async function criarUsuario() {
 
   await fetch("/api/criar-usuario", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nome, username, senha, role })
   });
 
@@ -98,9 +88,7 @@ async function criarSolicitacao() {
 
   await fetch("/api/criar-solicitacao", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       usuario_id: usuarioLogado.id,
       tipo,
@@ -115,12 +103,9 @@ async function criarSolicitacao() {
 async function carregarSolicitacoes() {
   const res = await fetch("/api/solicitacoes");
   const lista = await res.json();
-
   const ul = document.getElementById("listaSolicitacoes");
   if (!ul) return;
-
   ul.innerHTML = "";
-
   lista.forEach(s => {
     const li = document.createElement("li");
     li.innerText = `${s.nome} - ${s.tipo} - ${s.data} (${s.status})`;
@@ -129,26 +114,22 @@ async function carregarSolicitacoes() {
 }
 
 // =============================
-// ANIVERSARIANTES DO MÊS
+// ANIVERSARIANTES
 // =============================
 async function carregarAniversariantes() {
   const res = await fetch("/api/usuarios");
   const usuarios = await res.json();
-
-  const mesAtual = new Date().getMonth() + 1; // 1-12
-  const lista = document.getElementById("listaAniversariantes");
-  if (!lista) return;
-
-  lista.innerHTML = "";
-
-  usuarios.forEach(u => {
-    const userMes = parseInt(u.data_nascimento.split("-")[1]);
-    if (userMes === mesAtual) {
+  const mesAtual = new Date().getMonth() + 1;
+  const ul = document.getElementById("listaAniversariantes");
+  if (!ul) return;
+  ul.innerHTML = "";
+  usuarios
+    .filter(u => new Date(u.nascimento).getMonth() + 1 === mesAtual)
+    .forEach(u => {
       const li = document.createElement("li");
-      li.innerText = `${u.nome} - ${u.data_nascimento.split("-")[2]}/${userMes}`;
-      lista.appendChild(li);
-    }
-  });
+      li.innerText = `${u.nome} - ${new Date(u.nascimento).toLocaleDateString('pt-BR', { day: '2-digit' })}`;
+      ul.appendChild(li);
+    });
 }
 
 // =============================
@@ -168,7 +149,7 @@ function logout() {
 }
 
 // =============================
-// CALENDÁRIO INTERATIVO COM POPUP MODERNO
+// CALENDÁRIO
 // =============================
 async function carregarCalendario() {
   const res = await fetch("/api/solicitacoes");
@@ -177,50 +158,21 @@ async function carregarCalendario() {
   const eventos = dados.map(s => ({
     title: `${s.nome} - ${s.tipo}`,
     date: s.data,
-    extendedProps: {
-      status: s.status,
-      motivo: s.motivo,
-      usuario: s.nome
-    },
+    extendedProps: { status: s.status, motivo: s.motivo, usuario: s.nome },
     color: corTipo(s.tipo)
   }));
 
   const el = document.getElementById("calendar");
-  if (!el) return;
-
-  // Cria popup moderno se não existir
-  if (!dayDetailsEl) {
-    dayDetailsEl = document.createElement("div");
-    dayDetailsEl.id = "detalhesDia";
-    Object.assign(dayDetailsEl.style, {
-      position: "absolute",
-      background: "#1e293b",
-      padding: "20px",
-      borderRadius: "12px",
-      display: "none",
-      maxWidth: "350px",
-      maxHeight: "400px",
-      overflowY: "auto",
-      boxShadow: "0 8px 25px rgba(0,0,0,0.5)",
-      zIndex: 1000,
-      fontFamily: "'Segoe UI', sans-serif",
-      color: "#fff",
-      transition: "opacity 0.2s ease"
-    });
-    document.body.appendChild(dayDetailsEl);
-  }
+  const detalhesEl = document.getElementById("detalhesDia");
+  if (!el || !detalhesEl) return;
 
   if (!calendar) {
     calendar = new FullCalendar.Calendar(el, {
       initialView: 'dayGridMonth',
       locale: 'pt-br',
       events: eventos,
-      dayCellDidMount: function(arg) {
-        arg.el.style.cursor = "pointer";
-      },
-      dateClick: function(info) {
-        mostrarDetalhesDia(info.dateStr, dados, info.jsEvent);
-      }
+      dayCellDidMount: arg => arg.el.style.cursor = "pointer",
+      dateClick: info => mostrarDetalhesDia(info.dateStr, dados)
     });
     calendar.render();
   } else {
@@ -230,89 +182,29 @@ async function carregarCalendario() {
 }
 
 // =============================
-// MOSTRAR DETALHES DO DIA - CARD MODERNO
+// DETALHES DO DIA
 // =============================
-function mostrarDetalhesDia(data, dados, eventoClick) {
+function mostrarDetalhesDia(data, dados) {
+  const detalhesEl = document.getElementById("detalhesDia");
   const detalhes = dados.filter(s => s.data === data);
 
-  if (detalhes.length === 0) {
-    dayDetailsEl.style.display = "none";
+  if (detalhes.length === 0 || detalhesEl.dataset.aberto === data) {
+    detalhesEl.style.display = "none";
+    detalhesEl.dataset.aberto = "";
     return;
   }
 
-  // Toggle: fecha se já está aberto no mesmo dia
-  if (dayDetailsEl.dataset.aberto === data) {
-    dayDetailsEl.style.display = "none";
-    dayDetailsEl.dataset.aberto = "";
-    return;
-  }
+  detalhesEl.dataset.aberto = data;
 
-  dayDetailsEl.dataset.aberto = data;
-
-  // Conteúdo do card moderno
-  dayDetailsEl.innerHTML = `
-    <h3 style="margin-bottom: 10px; font-size: 16px; border-bottom: 1px solid #0f172a; padding-bottom: 5px;">
-      ${detalhes.length} Solicitação(s) - ${data}
-    </h3>
-    ${detalhes.map(s => `
-      <div style="padding:8px 0; border-bottom:1px solid #0f172a;">
-        <strong>${s.nome}</strong><br>
-        Tipo: <span style="color:${corTipo(s.tipo)};">${s.tipo}</span> | Status: ${s.status}<br>
-        Motivo: ${s.motivo || "-"}
-      </div>
-    `).join('')}
-  `;
-
-  // Posicionar popup próximo ao clique
-  const padding = 10;
-  let top = eventoClick.pageY + padding;
-  let left = eventoClick.pageX + padding;
-
-  // Evita que ultrapasse a tela
-  if (top + dayDetailsEl.offsetHeight > window.innerHeight + window.scrollY) {
-    top = window.innerHeight + window.scrollY - dayDetailsEl.offsetHeight - padding;
-  }
-  if (left + dayDetailsEl.offsetWidth > window.innerWidth + window.scrollX) {
-    left = window.innerWidth + window.scrollX - dayDetailsEl.offsetWidth - padding;
-  }
-
-  dayDetailsEl.style.top = `${top}px`;
-  dayDetailsEl.style.left = `${left}px`;
-  dayDetailsEl.style.display = "block";
-}
-
-// =============================
-// MOSTRAR DETALHES DO DIA
-// =============================
-function mostrarDetalhesDia(data, dados, eventoClick) {
-  const detalhes = dados.filter(s => s.data === data);
-
-  if (detalhes.length === 0) {
-    dayDetailsEl.style.display = "none";
-    return;
-  }
-
-  // Toggle: fecha se já está aberto no mesmo dia
-  if (dayDetailsEl.dataset.aberto === data) {
-    dayDetailsEl.style.display = "none";
-    dayDetailsEl.dataset.aberto = "";
-    return;
-  }
-
-  dayDetailsEl.dataset.aberto = data;
-
-  // Conteúdo minimalista
-  dayDetailsEl.innerHTML = `<h3>${detalhes.length} Solicitação(s) - ${data}</h3>` +
+  detalhesEl.innerHTML = `<h3 style="margin-bottom:10px;">${detalhes.length} Solicitação(s) - ${data}</h3>` +
     detalhes.map(s => `
       <div style="padding:5px 0; border-bottom:1px solid #0f172a;">
-        <strong>${s.nome}</strong> - ${s.tipo} (${s.status})
+        <strong>${s.nome}</strong> - <span style="color:${corTipo(s.tipo)};">${s.tipo}</span> (${s.status})<br>
+        <small>${s.motivo || "-"}</small>
       </div>
     `).join('');
 
-  // Posicionar o popup próximo ao clique
-  dayDetailsEl.style.top = eventoClick.pageY + 10 + "px";
-  dayDetailsEl.style.left = eventoClick.pageX + 10 + "px";
-  dayDetailsEl.style.display = "block";
+  detalhesEl.style.display = "block";
 }
 
 // =============================
