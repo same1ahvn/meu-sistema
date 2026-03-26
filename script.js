@@ -1,9 +1,9 @@
 // =============================
-// VARIÁVEL GLOBAL
+// VARIÁVEIS GLOBAIS
 // =============================
 let usuarioLogado = null;
-let calendar;
-let dayDetailsEl;
+let calendar = null;
+let dayDetailsEl = null;
 
 // =============================
 // LOGIN
@@ -49,62 +49,34 @@ async function login() {
 }
 
 // =============================
-// NAVEGAÇÃO ENTRE TELAS
-// =============================
-function mostrarTela(tela) {
-  document.querySelectorAll(".tela").forEach(t => t.style.display = "none");
-  document.getElementById(tela).style.display = "block";
-  document.getElementById("titulo").innerText = tela;
-}
-
-// =============================
-// LOGOUT
-// =============================
-function logout() {
-  location.reload();
-}
-
-// =============================
 // USUÁRIOS
 // =============================
+async function carregarUsuarios() {
+  const res = await fetch("/api/usuarios");
+  const usuarios = await res.json();
+  const lista = document.getElementById("listaUsuarios");
+  if (!lista) return;
+  lista.innerHTML = "";
+  usuarios.forEach(u => {
+    const li = document.createElement("li");
+    li.innerText = `${u.nome} (${u.username}) - ${u.role}`;
+    lista.appendChild(li);
+  });
+}
+
 async function criarUsuario() {
   const nome = document.getElementById("nome").value;
   const username = document.getElementById("username").value;
   const senha = document.getElementById("senha").value;
   const role = document.getElementById("role").value;
-  const nascimento = document.getElementById("nascimento").value;
-
-  if (!nome || !username || !senha || !role || !nascimento) {
-    alert("Preencha todos os campos!");
-    return;
-  }
 
   await fetch("/api/criar-usuario", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nome, username, senha, role, nascimento })
+    body: JSON.stringify({ nome, username, senha, role })
   });
-
-  document.getElementById("nome").value = "";
-  document.getElementById("username").value = "";
-  document.getElementById("senha").value = "";
-  document.getElementById("role").value = "user";
-  document.getElementById("nascimento").value = "";
 
   carregarUsuarios();
-}
-
-async function carregarUsuarios() {
-  const res = await fetch("/api/usuarios");
-  const usuarios = await res.json();
-  const ul = document.getElementById("listaUsuarios");
-  if (!ul) return;
-  ul.innerHTML = "";
-  usuarios.forEach(u => {
-    const li = document.createElement("li");
-    li.innerText = `${u.nome} (${u.username}) - ${u.role} - ${u.nascimento ? new Date(u.nascimento).toLocaleDateString() : "-"}`;
-    ul.appendChild(li);
-  });
 }
 
 // =============================
@@ -138,11 +110,46 @@ async function carregarSolicitacoes() {
 }
 
 // =============================
+// DASHBOARD
+// =============================
+async function carregarAniversariantes() {
+  const res = await fetch("/api/usuarios");
+  const usuarios = await res.json();
+  const ul = document.getElementById("listaAniversariantes");
+  if (!ul) return;
+
+  const mesAtual = new Date().getMonth() + 1; // Janeiro = 0
+  ul.innerHTML = "";
+
+  usuarios.forEach(u => {
+    const data = new Date(u.dataNascimento);
+    if (data.getMonth() + 1 === mesAtual) {
+      const li = document.createElement("li");
+      li.innerText = `${u.nome} - ${data.getDate()}/${data.getMonth()+1}`;
+      ul.appendChild(li);
+    }
+  });
+}
+
+// =============================
+// NAVEGAÇÃO ENTRE TELAS
+// =============================
+function mostrarTela(tela) {
+  document.querySelectorAll(".tela").forEach(t => t.style.display = "none");
+  document.getElementById(tela).style.display = "block";
+  document.getElementById("titulo").innerText = tela;
+}
+
+// =============================
+// LOGOUT
+// =============================
+function logout() {
+  location.reload();
+}
+
+// =============================
 // CALENDÁRIO INTERATIVO
 // =============================
-let calendar;
-let dayDetailsEl;
-
 async function carregarCalendario() {
   const res = await fetch("/api/solicitacoes");
   const dados = await res.json();
@@ -162,27 +169,25 @@ async function carregarCalendario() {
       initialView: 'dayGridMonth',
       locale: 'pt-br',
       events: eventos,
-      dayCellDidMount: arg => {
-        arg.el.style.cursor = "pointer"; // muda cursor para indicar clicável
-      },
+      dayCellDidMount: arg => { arg.el.style.cursor = "pointer"; },
       dateClick: info => mostrarDetalhesDia(info.dateStr, dados)
     });
     calendar.render();
 
-    // Cria o container flutuante para detalhes do dia
+    // container flutuante para detalhes
     dayDetailsEl = document.createElement("div");
     dayDetailsEl.id = "detalhesDia";
     dayDetailsEl.style.position = "absolute";
     dayDetailsEl.style.background = "#1e293b";
     dayDetailsEl.style.padding = "15px";
     dayDetailsEl.style.borderRadius = "10px";
-    dayDetailsEl.style.top = "80px"; // distância do topo
+    dayDetailsEl.style.top = "80px";
     dayDetailsEl.style.left = "50%";
     dayDetailsEl.style.transform = "translateX(-50%)";
     dayDetailsEl.style.display = "none";
     dayDetailsEl.style.maxWidth = "400px";
     dayDetailsEl.style.boxShadow = "0 0 15px rgba(0,0,0,0.5)";
-    dayDetailsEl.style.zIndex = "1000"; // garante que fique acima do calendário
+    dayDetailsEl.style.zIndex = "1000";
     document.body.appendChild(dayDetailsEl);
   } else {
     calendar.removeAllEvents();
@@ -190,11 +195,9 @@ async function carregarCalendario() {
   }
 }
 
-// Função que abre/fecha os detalhes do dia
 function mostrarDetalhesDia(data, dados) {
   const detalhes = dados.filter(s => s.data === data);
 
-  // Se não houver eventos ou se clicar novamente na mesma data, fecha
   if (detalhes.length === 0 || dayDetailsEl.dataset.aberto === data) {
     dayDetailsEl.style.display = "none";
     dayDetailsEl.dataset.aberto = "";
@@ -203,7 +206,6 @@ function mostrarDetalhesDia(data, dados) {
 
   dayDetailsEl.dataset.aberto = data;
 
-  // Conteúdo minimalista do popup
   dayDetailsEl.innerHTML = `<h3>${detalhes.length} Solicitação(s) - ${data}</h3>` +
     detalhes.map(s => `
       <div style="padding:5px 0; border-bottom:1px solid #0f172a;">
@@ -212,26 +214,6 @@ function mostrarDetalhesDia(data, dados) {
     `).join('');
 
   dayDetailsEl.style.display = "block";
-}
-// =============================
-// ANIVERSARIANTES
-// =============================
-async function carregarAniversariantes() {
-  const res = await fetch("/api/usuarios");
-  const usuarios = await res.json();
-  const ul = document.getElementById("listaAniversariantes");
-  if (!ul) return;
-  ul.innerHTML = "";
-  const mesAtual = new Date().getMonth() + 1;
-  usuarios.filter(u => {
-    if (!u.nascimento) return false;
-    const mes = new Date(u.nascimento).getMonth() + 1;
-    return mes === mesAtual;
-  }).forEach(u => {
-    const li = document.createElement("li");
-    li.innerText = `${u.nome} - ${new Date(u.nascimento).toLocaleDateString()}`;
-    ul.appendChild(li);
-  });
 }
 
 // =============================
