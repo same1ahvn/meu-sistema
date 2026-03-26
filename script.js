@@ -3,6 +3,7 @@
 // =============================
 let usuarioLogado = null;
 let calendar;
+let dayDetailsEl;
 
 // =============================
 // LOGIN
@@ -48,34 +49,62 @@ async function login() {
 }
 
 // =============================
-// USUÁRIOS
+// NAVEGAÇÃO ENTRE TELAS
 // =============================
-async function carregarUsuarios() {
-  const res = await fetch("/api/usuarios");
-  const usuarios = await res.json();
-  const lista = document.getElementById("listaUsuarios");
-  if (!lista) return;
-  lista.innerHTML = "";
-  usuarios.forEach(u => {
-    const li = document.createElement("li");
-    li.innerText = `${u.nome} (${u.username}) - ${u.role}`;
-    lista.appendChild(li);
-  });
+function mostrarTela(tela) {
+  document.querySelectorAll(".tela").forEach(t => t.style.display = "none");
+  document.getElementById(tela).style.display = "block";
+  document.getElementById("titulo").innerText = tela;
 }
 
+// =============================
+// LOGOUT
+// =============================
+function logout() {
+  location.reload();
+}
+
+// =============================
+// USUÁRIOS
+// =============================
 async function criarUsuario() {
   const nome = document.getElementById("nome").value;
   const username = document.getElementById("username").value;
   const senha = document.getElementById("senha").value;
   const role = document.getElementById("role").value;
+  const nascimento = document.getElementById("nascimento").value;
+
+  if (!nome || !username || !senha || !role || !nascimento) {
+    alert("Preencha todos os campos!");
+    return;
+  }
 
   await fetch("/api/criar-usuario", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nome, username, senha, role })
+    body: JSON.stringify({ nome, username, senha, role, nascimento })
   });
 
+  document.getElementById("nome").value = "";
+  document.getElementById("username").value = "";
+  document.getElementById("senha").value = "";
+  document.getElementById("role").value = "user";
+  document.getElementById("nascimento").value = "";
+
   carregarUsuarios();
+}
+
+async function carregarUsuarios() {
+  const res = await fetch("/api/usuarios");
+  const usuarios = await res.json();
+  const ul = document.getElementById("listaUsuarios");
+  if (!ul) return;
+  ul.innerHTML = "";
+  usuarios.forEach(u => {
+    const li = document.createElement("li");
+    li.innerText = `${u.nome} (${u.username}) - ${u.role} - ${u.nascimento ? new Date(u.nascimento).toLocaleDateString() : "-"}`;
+    ul.appendChild(li);
+  });
 }
 
 // =============================
@@ -89,12 +118,7 @@ async function criarSolicitacao() {
   await fetch("/api/criar-solicitacao", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      usuario_id: usuarioLogado.id,
-      tipo,
-      data,
-      motivo
-    })
+    body: JSON.stringify({ usuario_id: usuarioLogado.id, tipo, data, motivo })
   });
 
   carregarSolicitacoes();
@@ -114,41 +138,6 @@ async function carregarSolicitacoes() {
 }
 
 // =============================
-// ANIVERSARIANTES
-// =============================
-async function carregarAniversariantes() {
-  const res = await fetch("/api/usuarios");
-  const usuarios = await res.json();
-  const mesAtual = new Date().getMonth() + 1;
-  const ul = document.getElementById("listaAniversariantes");
-  if (!ul) return;
-  ul.innerHTML = "";
-  usuarios
-    .filter(u => new Date(u.nascimento).getMonth() + 1 === mesAtual)
-    .forEach(u => {
-      const li = document.createElement("li");
-      li.innerText = `${u.nome} - ${new Date(u.nascimento).toLocaleDateString('pt-BR', { day: '2-digit' })}`;
-      ul.appendChild(li);
-    });
-}
-
-// =============================
-// NAVEGAÇÃO ENTRE TELAS
-// =============================
-function mostrarTela(tela) {
-  document.querySelectorAll(".tela").forEach(t => t.style.display = "none");
-  document.getElementById(tela).style.display = "block";
-  document.getElementById("titulo").innerText = tela;
-}
-
-// =============================
-// LOGOUT
-// =============================
-function logout() {
-  location.reload();
-}
-
-// =============================
 // CALENDÁRIO
 // =============================
 async function carregarCalendario() {
@@ -163,8 +152,7 @@ async function carregarCalendario() {
   }));
 
   const el = document.getElementById("calendar");
-  const detalhesEl = document.getElementById("detalhesDia");
-  if (!el || !detalhesEl) return;
+  if (!el) return;
 
   if (!calendar) {
     calendar = new FullCalendar.Calendar(el, {
@@ -175,36 +163,63 @@ async function carregarCalendario() {
       dateClick: info => mostrarDetalhesDia(info.dateStr, dados)
     });
     calendar.render();
+
+    // Container minimalista para detalhes do dia
+    dayDetailsEl = document.createElement("div");
+    dayDetailsEl.id = "detalhesDia";
+    dayDetailsEl.style.position = "absolute";
+    dayDetailsEl.style.background = "#1e293b";
+    dayDetailsEl.style.padding = "15px";
+    dayDetailsEl.style.borderRadius = "10px";
+    dayDetailsEl.style.top = "50px";
+    dayDetailsEl.style.left = "50%";
+    dayDetailsEl.style.transform = "translateX(-50%)";
+    dayDetailsEl.style.display = "none";
+    dayDetailsEl.style.maxWidth = "400px";
+    dayDetailsEl.style.boxShadow = "0 0 15px rgba(0,0,0,0.4)";
+    document.body.appendChild(dayDetailsEl);
   } else {
     calendar.removeAllEvents();
     calendar.addEventSource(eventos);
   }
 }
 
-// =============================
-// DETALHES DO DIA
-// =============================
+// Mostrar/ocultar detalhes do dia
 function mostrarDetalhesDia(data, dados) {
-  const detalhesEl = document.getElementById("detalhesDia");
   const detalhes = dados.filter(s => s.data === data);
-
-  if (detalhes.length === 0 || detalhesEl.dataset.aberto === data) {
-    detalhesEl.style.display = "none";
-    detalhesEl.dataset.aberto = "";
+  if (detalhes.length === 0 || dayDetailsEl.dataset.aberto === data) {
+    dayDetailsEl.style.display = "none";
+    dayDetailsEl.dataset.aberto = "";
     return;
   }
 
-  detalhesEl.dataset.aberto = data;
+  dayDetailsEl.dataset.aberto = data;
+  dayDetailsEl.innerHTML = `<h3>${detalhes.length} Solicitação(s) - ${data}</h3>` +
+    detalhes.map(s => `<div style="padding:5px 0; border-bottom:1px solid #0f172a;">
+      <strong>${s.nome}</strong> - ${s.tipo} (${s.status})
+    </div>`).join('');
+  dayDetailsEl.style.display = "block";
+}
 
-  detalhesEl.innerHTML = `<h3 style="margin-bottom:10px;">${detalhes.length} Solicitação(s) - ${data}</h3>` +
-    detalhes.map(s => `
-      <div style="padding:5px 0; border-bottom:1px solid #0f172a;">
-        <strong>${s.nome}</strong> - <span style="color:${corTipo(s.tipo)};">${s.tipo}</span> (${s.status})<br>
-        <small>${s.motivo || "-"}</small>
-      </div>
-    `).join('');
-
-  detalhesEl.style.display = "block";
+// =============================
+// ANIVERSARIANTES
+// =============================
+async function carregarAniversariantes() {
+  const res = await fetch("/api/usuarios");
+  const usuarios = await res.json();
+  const ul = document.getElementById("listaAniversariantes");
+  if (!ul) return;
+  ul.innerHTML = "";
+  const mesAtual = new Date().getMonth() + 1;
+  usuarios.filter(u => {
+    if (!u.nascimento) return false;
+    const mes = new Date(u.nascimento).getMonth() + 1;
+    return mes === mesAtual;
+  }).forEach(u => {
+    const li = document.createElement("li");
+    li.innerText = `${u.nome} - ${new Date(u.nascimento).toLocaleDateString()}`;
+    ul.appendChild(li);
+  });
 }
 
 // =============================
