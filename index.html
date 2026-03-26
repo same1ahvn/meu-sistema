@@ -123,11 +123,6 @@ li:hover {
 .fc {
   border-radius: 10px;
 }
-
-/* DETALHES DO DIA */
-#detalhesDia {
-  font-size: 14px;
-}
 </style>
 </head>
 
@@ -136,9 +131,11 @@ li:hover {
 <!-- LOGIN -->
 <div id="loginScreen" class="login-box">
   <h2>Login SAME</h2>
-  <input type="text" id="loginUser" placeholder="Usuário">
-  <input type="password" id="loginPass" placeholder="Senha">
-  <button onclick="login()">Entrar</button>
+  <form onsubmit="login(); return false;">
+    <input type="text" id="loginUser" placeholder="Usuário" required>
+    <input type="password" id="loginPass" placeholder="Senha" required>
+    <button type="submit">Entrar</button>
+  </form>
   <p id="loginErro" style="color:red;"></p>
 </div>
 
@@ -148,8 +145,7 @@ li:hover {
   <!-- SIDEBAR -->
   <div class="sidebar">
     <h2>SAME</h2>
-    <button onclick="mostrarTela('dashboard')">🏠 Tela Inicial</button>
-    <button onclick="mostrarTela('usuarios')">👥 Usuários</button>
+    <button onclick="mostrarTela('dashboard')">🏠 Dashboard</button>
     <button onclick="mostrarTela('solicitacoes')">📋 Solicitações</button>
     <button onclick="logout()">🚪 Sair</button>
   </div>
@@ -158,7 +154,7 @@ li:hover {
   <div class="content">
 
     <div class="topbar">
-      <h1 id="titulo">Tela Inicial</h1>
+      <h1 id="titulo">Dashboard</h1>
       <span id="infoUsuario"></span>
     </div>
 
@@ -171,26 +167,6 @@ li:hover {
       <div class="card">
         <h2>📅 Calendário</h2>
         <div id="calendar"></div>
-      </div>
-    </div>
-
-    <!-- USUÁRIOS -->
-    <div id="usuarios" class="tela" style="display:none;">
-      <div class="card">
-        <h2>Criar Novo Usuário</h2>
-        <input type="text" id="nome" placeholder="Nome">
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="senha" placeholder="Senha">
-        <select id="role">
-          <option value="admin">Admin</option>
-          <option value="user">User</option>
-        </select>
-        <input type="date" id="nascimento" placeholder="Data de nascimento">
-        <button onclick="criarUsuario()">Criar Usuário</button>
-      </div>
-      <div class="card">
-        <h2>Lista de Usuários</h2>
-        <ul id="listaUsuarios"></ul>
       </div>
     </div>
 
