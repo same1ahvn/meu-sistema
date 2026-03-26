@@ -147,6 +147,7 @@ li:hover {
     <h2>SAME</h2>
     <button onclick="mostrarTela('dashboard')">🏠 Dashboard</button>
     <button onclick="mostrarTela('solicitacoes')">📋 Solicitações</button>
+    <button onclick="mostrarTela('usuarios')">👥 Usuários</button>
     <button onclick="logout()">🚪 Sair</button>
   </div>
 
@@ -186,6 +187,25 @@ li:hover {
       <div class="card">
         <h2>Solicitações</h2>
         <ul id="listaSolicitacoes"></ul>
+      </div>
+    </div>
+
+    <!-- USUÁRIOS -->
+    <div id="usuarios" class="tela" style="display:none;">
+      <div class="card">
+        <h2>Criar Usuário</h2>
+        <input type="text" id="nome" placeholder="Nome">
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="senha" placeholder="Senha">
+        <select id="role">
+          <option value="user">Usuário</option>
+          <option value="admin">Admin</option>
+        </select>
+        <button onclick="criarUsuario()">Criar</button>
+      </div>
+      <div class="card">
+        <h2>Lista de Usuários</h2>
+        <ul id="listaUsuarios"></ul>
       </div>
     </div>
 
