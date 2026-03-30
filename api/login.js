@@ -11,10 +11,10 @@ export default async function handler(req, res) {
   try {
     const { username, senha } = req.body;
 
-    const result = await pool.query(
-      "SELECT * FROM usuarios WHERE username = $1",
-      [username]
-    );
+const result = await pool.query(
+  "SELECT * FROM usuarios WHERE username = $1 AND senha = $2",
+  [username, senha]
+);
 
     if (result.rows.length === 0) {
       return res.status(401).json({ erro: "Usuário não encontrado" });
