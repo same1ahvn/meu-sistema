@@ -8,34 +8,32 @@ const pool = new Pool({
 });
 
 export default async function handler(req, res) {
-  try {
-    const { username, senha } = req.body;
 
-const result = await pool.query(
-  "SELECT * FROM usuarios WHERE username = $1 AND senha = $2",
-  [username, senha]
-);
+  if (req.method !== "POST") {
+    return res.status(405).json({ erro: "Método não permitido" });
+  }
+
+  const { username, senha } = req.body;
+
+  try {
+    const result = await pool.query(
+      "SELECT * FROM usuarios WHERE username = $1",
+      [username]
+    );
 
     if (result.rows.length === 0) {
-      return res.status(401).json({ erro: "Usuário não encontrado" });
+      return res.status(401).json({ erro: "Usuário ou senha inválidos" });
     }
 
-    const user = result.rows[0];
+    const usuario = result.rows[0];
 
-    const senhaValida = await bcrypt.compare(senha, user.senha);
+    const senhaValida = await bcrypt.compare(senha, usuario.senha);
 
     if (!senhaValida) {
-      return res.status(401).json({ erro: "Senha inválida" });
+      return res.status(401).json({ erro: "Usuário ou senha inválidos" });
     }
 
-    res.status(200).json({
-      mensagem: "Login realizado!",
-      usuario: {
-        id: user.id,
-        nome: user.nome,
-        role: user.role
-      }
-    });
+    res.status(200).json({ usuario });
 
   } catch (error) {
     res.status(500).json({ erro: error.message });
