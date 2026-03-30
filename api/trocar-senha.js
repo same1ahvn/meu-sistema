@@ -1,5 +1,5 @@
 import pkg from 'pg';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const { Pool } = pkg;
 
@@ -20,10 +20,7 @@ export default async function handler(req, res) {
   }
 
   try {
-await pool.query(
-  "UPDATE usuarios SET senha = $1 WHERE id = $2",
-  [novaSenha, id]
-);
+    const hash = await bcrypt.hash(novaSenha, 10);
 
     await pool.query(
       "UPDATE usuarios SET senha = $1 WHERE id = $2",
