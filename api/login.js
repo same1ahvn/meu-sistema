@@ -8,21 +8,16 @@ const pool = new Pool({
 });
 
 export default async function handler(req, res) {
-
-  if (req.method !== "POST") {
-    return res.status(405).json({ erro: "Método não permitido" });
-  }
-
-  const { username, senha } = req.body;
-
   try {
+    const { username, senha } = req.body;
+
     const result = await pool.query(
       "SELECT * FROM usuarios WHERE username = $1",
       [username]
     );
 
     if (result.rows.length === 0) {
-      return res.status(401).json({ erro: "Usuário ou senha inválidos" });
+      return res.status(401).json({ erro: "Usuário não encontrado" });
     }
 
     const usuario = result.rows[0];
@@ -30,10 +25,17 @@ export default async function handler(req, res) {
     const senhaValida = await bcrypt.compare(senha, usuario.senha);
 
     if (!senhaValida) {
-      return res.status(401).json({ erro: "Usuário ou senha inválidos" });
+      return res.status(401).json({ erro: "Senha inválida" });
     }
 
-    res.status(200).json({ usuario });
+    res.status(200).json({
+      usuario: {
+        id: usuario.id,
+        nome: usuario.nome,
+        username: usuario.username,
+        role: usuario.role
+      }
+    });
 
   } catch (error) {
     res.status(500).json({ erro: error.message });
