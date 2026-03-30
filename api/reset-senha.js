@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     const hash = await bcrypt.hash("123456", 10);
 
     await pool.query(
-      "UPDATE usuarios SET senha = $1 WHERE username = 'admin'"
+      "UPDATE usuarios SET senha = $1 WHERE username = 'YURI'"
     , [hash]);
 
     res.json({ sucesso: true, senha: "123456" });
