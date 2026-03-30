@@ -19,7 +19,8 @@ async function login() {
       usuarioLogado = data.usuario;
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("painel").style.display = "block";
-      document.getElementById("infoUsuario").innerText = data.usuario.nome;
+     const tipo = data.usuario.role === "admin" ? "Admin" : "Funcionário";
+document.getElementById("infoUsuario").innerText = `${data.usuario.nome} (${tipo})`;
 
       carregarUsuarios();
       carregarSolicitacoes();
@@ -172,4 +173,36 @@ function corTipo(tipo) {
   if (tipo === "atraso") return "orange";
   if (tipo === "ferias") return "green";
   return "blue";
+}
+function abrirTrocaSenha() {
+  document.getElementById("popupSenha").style.display = "block";
+}
+
+function fecharTrocaSenha() {
+  document.getElementById("popupSenha").style.display = "none";
+}
+
+async function trocarSenha() {
+  const novaSenha = document.getElementById("novaSenha").value;
+
+  if (!novaSenha) {
+    alert("Digite uma nova senha");
+    return;
+  }
+
+  const res = await fetch("/api/trocar-senha", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: usuarioLogado.id,
+      novaSenha
+    })
+  });
+
+  if (res.ok) {
+    alert("Senha alterada com sucesso!");
+    fecharTrocaSenha();
+  } else {
+    alert("Erro ao trocar senha");
+  }
 }
