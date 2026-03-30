@@ -161,6 +161,7 @@ li:hover { background: #111827; cursor: pointer; }
     <div class="topbar">
       <h1 id="titulo">Dashboard</h1>
       <span id="infoUsuario"></span>
+<button onclick="abrirTrocaSenha()">🔒 Trocar Senha</button>
     </div>
 
     <!-- DASHBOARD -->
@@ -215,7 +216,16 @@ li:hover { background: #111827; cursor: pointer; }
 
   </div>
 </div>
+<div id="popupSenha" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%);
+background:#1e293b; padding:20px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.6); z-index:2000;">
 
+  <h3>Trocar Senha</h3>
+
+  <input type="password" id="novaSenha" placeholder="Nova senha" style="width:100%; margin:10px 0; padding:10px;">
+  
+  <button onclick="trocarSenha()">Salvar</button>
+  <button onclick="fecharTrocaSenha()" style="background:red;">Cancelar</button>
+</div>
 <div id="detalhesDia"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
